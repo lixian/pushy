@@ -27,17 +27,22 @@ import io.netty.handler.codec.base64.Base64Dialect;
  */
 class AuthenticationTokenSupplier {
 
-    private final Signature signature;
-
     private final String issuer;
     private final String keyId;
+    private final ECPrivateKey privateKey;
 
-    private String token;
+    private final transient Signature signature;
+
+    private transient String token;
 
     private static final Gson gson = new GsonBuilder()
             .disableHtmlEscaping()
             .registerTypeAdapter(Date.class, new DateAsTimeSinceEpochTypeAdapter(TimeUnit.SECONDS))
             .create();
+
+    public AuthenticationTokenSupplier(final AuthenticationTokenSupplier otherSupplier) throws InvalidKeyException, NoSuchAlgorithmException {
+        this(otherSupplier.issuer, otherSupplier.keyId, otherSupplier.privateKey);
+    }
 
     /**
      * Constructs a new authentication token provider that will generate tokens for the given issuer with the given
@@ -60,6 +65,7 @@ class AuthenticationTokenSupplier {
 
         this.issuer = issuer;
         this.keyId = keyId;
+        this.privateKey = privateKey;
     }
 
     /**
