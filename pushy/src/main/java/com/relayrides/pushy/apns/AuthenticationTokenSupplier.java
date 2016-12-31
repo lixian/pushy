@@ -5,7 +5,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.interfaces.ECPrivateKey;
 import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +28,6 @@ class AuthenticationTokenSupplier {
 
     private final String issuer;
     private final String keyId;
-    private final ECPrivateKey privateKey;
 
     private final transient Signature signature;
 
@@ -40,32 +38,25 @@ class AuthenticationTokenSupplier {
             .registerTypeAdapter(Date.class, new DateAsTimeSinceEpochTypeAdapter(TimeUnit.SECONDS))
             .create();
 
-    public AuthenticationTokenSupplier(final AuthenticationTokenSupplier otherSupplier) throws InvalidKeyException, NoSuchAlgorithmException {
-        this(otherSupplier.issuer, otherSupplier.keyId, otherSupplier.privateKey);
-    }
-
     /**
      * Constructs a new authentication token provider that will generate tokens for the given issuer with the given
      * private key.
      *
      * @param issuer the ten-character team identifier of the team that owns the given signing key
      * @param keyId the ten-character key identifier for the given signing key
-     * @param privateKey the PKCS#8 private key to be used when signing authentication tokens
+     * @param signingKey the PKCS#8 private key to be used when signing authentication tokens
      *
      * @throws NoSuchAlgorithmException if the {@code SHA256withECDSA} algorithm is not available
      * @throws InvalidKeyException if the given private signing key is invalid for any reason
      */
-    public AuthenticationTokenSupplier(final String issuer, final String keyId, final ECPrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException {
-        Objects.requireNonNull(issuer);
-        Objects.requireNonNull(keyId);
-        Objects.requireNonNull(privateKey);
+    public AuthenticationTokenSupplier(final ApnsSigningKey signingKey) throws NoSuchAlgorithmException, InvalidKeyException {
+        Objects.requireNonNull(signingKey);
 
         this.signature = Signature.getInstance("SHA256withECDSA");
-        this.signature.initSign(privateKey);
+        this.signature.initSign(signingKey);
 
-        this.issuer = issuer;
-        this.keyId = keyId;
-        this.privateKey = privateKey;
+        this.issuer = signingKey.getTeamId();
+        this.keyId = signingKey.getKeyId();
     }
 
     /**
