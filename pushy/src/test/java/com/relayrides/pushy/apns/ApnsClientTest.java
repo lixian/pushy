@@ -339,8 +339,8 @@ public class ApnsClientTest {
         final String differentTopic = "different-topic";
 
         // "Normal" registration is covered implicitly by `testSendNotification`
-        this.client.registerSigningKey((ECPrivateKey) KeyPairUtil.generateKeyPair().getPrivate(), DEFAULT_TEAM_ID, DEFAULT_KEY_UD, topic);
-        this.client.registerSigningKey((ECPrivateKey) KeyPairUtil.generateKeyPair().getPrivate(), DEFAULT_TEAM_ID, DEFAULT_KEY_UD, differentTopic);
+        this.client.registerSigningKey((ECPrivateKey) KeyPairUtil.generateKeyPair().getPrivate(), DEFAULT_TEAM_ID, DEFAULT_KEY_ID, topic);
+        this.client.registerSigningKey((ECPrivateKey) KeyPairUtil.generateKeyPair().getPrivate(), DEFAULT_TEAM_ID, DEFAULT_KEY_ID, differentTopic);
 
         final SimpleApnsPushNotification pushNotification =
                 new SimpleApnsPushNotification(ApnsClientTest.generateRandomToken(), topic, "test-payload");
